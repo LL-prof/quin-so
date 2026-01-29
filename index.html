@@ -93,15 +93,16 @@
       }
 
       /* Bordes visibles */
-      button.note {
-        border: 5px solid transparent;
-        cursor: pointer;
-        width: 82px;
-        height: 62px;
-        border-radius: 18px;
-        box-shadow: var(--shadow);
-        transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
-      }
+      
+      button.note{
+  border: none; /* quitamos borde “normal” */
+  cursor:pointer;
+  width:82px; height:62px;
+  border-radius:18px;
+  box-shadow: var(--shadow);
+  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  position: relative; /* para la marquita */
+}
 
       button.note:focus-visible {
         outline: 3px solid var(--accent);
@@ -112,28 +113,61 @@
       .black { background: var(--black); }
 
       /* Amarillo selección */
-      .selected {
-        border-color: var(--sel);
-        box-shadow:
-          0 10px 24px rgba(0, 0, 0, 0.12),
-          0 0 0 7px rgba(250, 204, 21, 0.30);
-        transform: translateY(-2px);
-      }
-
+.selected{
+  outline: 7px solid var(--sel);
+  outline-offset: 4px;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,.14),
+    0 0 0 10px rgba(250,204,21,.22);
+  transform: translateY(-2px) scale(1.02);
+}
+.selected::after{
+  content:"";
+  position:absolute;
+  width:14px; height:14px;
+  border-radius:999px;
+  background: var(--sel);
+  top: 8px; right: 8px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+}
       /* Resultado tras CHECK */
-      .result-ok {
-        border-color: var(--ok) !important;
-        box-shadow:
-          0 10px 24px rgba(0, 0, 0, 0.12),
-          0 0 0 7px rgba(34, 197, 94, 0.24) !important;
-      }
+      /* ✅ Tras CHECK: verde/rojo igual de visible */
+.result-ok{
+  outline: 7px solid var(--ok) !important;
+  outline-offset: 4px !important;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,.14),
+    0 0 0 10px rgba(34,197,94,.20) !important;
+  transform: translateY(-2px) scale(1.02);
+}
+.result-ok::after{
+  content:"";
+  position:absolute;
+  width:14px; height:14px;
+  border-radius:999px;
+  background: var(--ok);
+  top: 8px; right: 8px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+}
 
-      .result-bad {
-        border-color: var(--bad) !important;
-        box-shadow:
-          0 10px 24px rgba(0, 0, 0, 0.12),
-          0 0 0 7px rgba(239, 68, 68, 0.24) !important;
-      }
+.result-bad{
+  outline: 7px solid var(--bad) !important;
+  outline-offset: 4px !important;
+  box-shadow:
+    0 12px 26px rgba(0,0,0,.14),
+    0 0 0 10px rgba(239,68,68,.20) !important;
+  transform: translateY(-2px) scale(1.02);
+}
+
+.result-bad::after{
+  content:"";
+  position:absolute;
+  width:14px; height:14px;
+  border-radius:999px;
+  background: var(--bad);
+  top: 8px; right: 8px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.18);
+}
 
       .controls {
         display: flex;
