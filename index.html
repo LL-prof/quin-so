@@ -10,11 +10,16 @@
         --white: #ffffff;
         --black: #1f1f1f;
         --accent: #4aa3ff;
-        --ok: #22c55e;
-        --bad: #ef4444;
         --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+
+        --sel: #facc15; /* amarillo */
+        --ok: #22c55e;  /* verde */
+        --bad: #ef4444; /* rojo */
+        --muted: #6b7280;
       }
+
       * { box-sizing: border-box; }
+
       body {
         margin: 0;
         min-height: 100vh;
@@ -24,22 +29,60 @@
         background: var(--bg);
         font-family: Arial, sans-serif;
       }
+
       .card {
         width: min(920px, 100%);
         background: rgba(255, 255, 255, 0.72);
         border-radius: 22px;
-        padding: 18px 18px 16px;
+        padding: 16px 18px 18px;
         box-shadow: var(--shadow);
         backdrop-filter: blur(6px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .title {
+        font-size: 20px;
+        font-weight: 900;
+        margin: 0;
+        color: #111827;
+        user-select: none;
+      }
+
+      .score {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: var(--shadow);
+        font-weight: 900;
+        color: #111827;
+        user-select: none;
+      }
+
+      .score small {
+        color: var(--muted);
+        font-weight: 900;
       }
 
       .choices {
         display: grid;
         grid-template-columns: repeat(4, minmax(70px, 90px));
         gap: 16px 20px;
-        margin-top: 6px;
         justify-content: center;
+        margin-top: 10px;
       }
+
       .note-group {
         display: grid;
         gap: 10px;
@@ -49,50 +92,47 @@
         border-radius: 16px;
       }
 
+      /* Bordes visibles */
       button.note {
-        border: none;
+        border: 5px solid transparent;
         cursor: pointer;
         width: 82px;
         height: 62px;
         border-radius: 18px;
         box-shadow: var(--shadow);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
       }
+
       button.note:focus-visible {
         outline: 3px solid var(--accent);
         outline-offset: 4px;
       }
+
       .white { background: var(--white); }
       .black { background: var(--black); }
+
+      /* Amarillo selección */
       .selected {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+        border-color: var(--sel);
+        box-shadow:
+          0 10px 24px rgba(0, 0, 0, 0.12),
+          0 0 0 7px rgba(250, 204, 21, 0.30);
+        transform: translateY(-2px);
       }
 
-      .animation {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
-        align-items: center;
-        margin: 18px 0 10px;
+      /* Resultado tras CHECK */
+      .result-ok {
+        border-color: var(--ok) !important;
+        box-shadow:
+          0 10px 24px rgba(0, 0, 0, 0.12),
+          0 0 0 7px rgba(34, 197, 94, 0.24) !important;
       }
-      .pulse {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: #d9e6f7;
-        box-shadow: inset 0 0 0 7px #c6d9f4;
-        transition: transform 0.2s ease, background 0.2s ease;
-        justify-self: center;
-      }
-      .pulse.active { transform: scale(1.18); background: var(--accent); }
-      .pulse.correct {
-        background: var(--ok);
-        box-shadow: inset 0 0 0 7px rgba(34, 197, 94, 0.28);
-      }
-      .pulse.wrong {
-        background: var(--bad);
-        box-shadow: inset 0 0 0 7px rgba(239, 68, 68, 0.28);
+
+      .result-bad {
+        border-color: var(--bad) !important;
+        box-shadow:
+          0 10px 24px rgba(0, 0, 0, 0.12),
+          0 0 0 7px rgba(239, 68, 68, 0.24) !important;
       }
 
       .controls {
@@ -100,8 +140,9 @@
         gap: 12px;
         justify-content: center;
         align-items: center;
-        margin-top: 8px;
+        margin-top: 16px;
       }
+
       .btn {
         border: none;
         cursor: pointer;
@@ -110,21 +151,62 @@
         border-radius: 22px;
         box-shadow: var(--shadow);
         font-size: 30px;
-        font-weight: 800;
-        transition: transform 0.1s ease;
+        font-weight: 900;
+        transition: transform 0.1s ease, opacity 0.15s ease, filter 0.15s ease;
         display: grid;
         place-items: center;
         user-select: none;
       }
+
       .btn:active { transform: scale(0.98); }
       .btn-primary { background: var(--accent); color: #fff; }
       .btn-check { background: #111827; color: #fff; }
       .btn-ghost { background: #fff; color: #111827; }
+
+      .btn[disabled] {
+        opacity: 0.28;
+        cursor: not-allowed;
+        filter: grayscale(0.2);
+      }
+
+      /* Altavoz (solo aparece/desaparece; sin animación por nota) */
+      .speaker {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .speaker.show { opacity: 1; }
+
+      .speaker .bubble {
+        width: 120px;
+        height: 120px;
+        border-radius: 32px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: var(--shadow);
+        display: grid;
+        place-items: center;
+        backdrop-filter: blur(6px);
+      }
+
+      .speaker svg { width: 66px; height: 66px; }
     </style>
   </head>
 
   <body>
     <div class="card" aria-label="Ejercicio">
+      <div class="topbar">
+        <h1 class="title" id="title">Melodía 1</h1>
+        <div class="score" aria-label="Marcador">
+          <small>✓</small>
+          <span id="scoreText">0/0</span>
+        </div>
+      </div>
+
       <div class="choices" aria-label="Elegir blanco o negro">
         <div class="note-group" data-index="0">
           <button class="note white selected" aria-label="1 blanco"></button>
@@ -144,50 +226,70 @@
         </div>
       </div>
 
-      <div class="animation" aria-hidden="true">
-        <div class="pulse" data-pulse="0"></div>
-        <div class="pulse" data-pulse="1"></div>
-        <div class="pulse" data-pulse="2"></div>
-        <div class="pulse" data-pulse="3"></div>
-      </div>
-
       <div class="controls" aria-label="Controles">
         <button class="btn btn-primary" id="listen" aria-label="Escuchar">▶</button>
         <button class="btn btn-check" id="check" aria-label="Comprobar">✓</button>
-        <button class="btn btn-ghost" id="new" aria-label="Nuevo">↻</button>
+        <button class="btn btn-ghost" id="new" aria-label="Nuevo" disabled>↻</button>
+      </div>
+
+      <div class="speaker" id="speaker" aria-hidden="true">
+        <div class="bubble">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M28 22L18 30H10v4h8l10 8V22z" fill="#111827"/>
+            <path d="M40 24c3 3 3 13 0 16" stroke="#4aa3ff" stroke-width="4" stroke-linecap="round"/>
+            <path d="M48 18c6 6 6 22 0 28" stroke="#4aa3ff" stroke-width="4" stroke-linecap="round" opacity=".75"/>
+          </svg>
+        </div>
       </div>
     </div>
 
     <script>
       // =============================
-      // IDEA: SOLO cambia la DURACIÓN.
-      // Mismo timbre (sine), mismo volumen, misma envolvente.
-      // Blanca = larga, Negra = corta.
+      // SOLO cambia la DURACIÓN:
+      // Blanca = larga, Negra = corta
+      // Timbre igual, envolvente igual.
       // =============================
 
       const NOTE_COUNT = 4;
 
-      // Melodía bonita (pentatónica / muy “agradable”):
-      // Do - Mi - Sol - La (C4, E4, G4, A4)
-      const baseFreqs = [261.63, 329.63, 392.0, 440.0];
+      // Duraciones (más largas que antes, y blancas > negras)
+      const DUR_BLACK = 0.42;
+      const DUR_WHITE = 0.86;
+      const GAP = 0.08;
 
-      // Duraciones (ajústalo si quieres más exagerado)
-      const DUR_BLACK = 0.28; // corta
-      const DUR_WHITE = 0.62; // larga (más del doble, se nota clarísimo)
-      const GAP = 0.05;       // silencio entre notas para que se perciba el largo/corto
+      // Volumen general (subido)
+      const MASTER_PEAK = 0.42;
 
-      // Selección del alumno
+      // Marcador acumulado
+      let totalCorrect = 0;
+      let totalAttempts = 0;
+
+      // Control de puntuación: Modelo C
+      // - Solo puntúa el primer CHECK de cada melodía
+      // - Para pasar, debe conseguir 4/4 (aunque ya no puntúe)
+      let scoredThisMelody = false;
+
+      // Melodía actual
+      let melodyIndex = 1;
+      let currentFreqs = pickPrettyMelody();
+      let answer = generateAnswer(); // ["white"/"black"] x4
+
+      // Selección del alumno (arranca en blanco)
       const selections = Array(NOTE_COUNT).fill("white");
-
-      // Respuesta correcta (solo white/black, porque lo que cambia es la duración)
-      let answer = generateAnswer();
 
       // Elements
       const groups = document.querySelectorAll(".note-group");
-      const pulses = document.querySelectorAll(".pulse");
       const listenBtn = document.getElementById("listen");
       const checkBtn = document.getElementById("check");
       const newBtn = document.getElementById("new");
+      const titleEl = document.getElementById("title");
+      const scoreText = document.getElementById("scoreText");
+      const speakerEl = document.getElementById("speaker");
+
+      function updateScore() {
+        scoreText.textContent = `${totalCorrect}/${totalAttempts}`;
+      }
+      updateScore();
 
       // UI selection
       groups.forEach((group) => {
@@ -196,10 +298,13 @@
 
         buttons.forEach((button) => {
           button.addEventListener("click", () => {
-            buttons.forEach((btn) => btn.classList.remove("selected"));
+            // Limpiar estados visuales del grupo
+            buttons.forEach((btn) => btn.classList.remove("selected", "result-ok", "result-bad"));
             button.classList.add("selected");
             selections[index] = button.classList.contains("white") ? "white" : "black";
-            clearFeedback();
+
+            // Al cambiar algo, no permitimos pasar (hasta sacar 4/4)
+            newBtn.disabled = true;
           });
         });
       });
@@ -214,34 +319,30 @@
 
       function playTone(freq, startTime, duration) {
         const context = getAudioContext();
-
         const osc = context.createOscillator();
         const gain = context.createGain();
 
-        // MISMO SONIDO SIEMPRE
         osc.type = "sine";
         osc.frequency.setValueAtTime(freq, startTime);
 
-        // Envolvente suave (igual para blancas y negras)
         const attack = 0.02;
-        const release = 0.05;
-        const peak = 0.22;
+        const release = 0.06;
 
         gain.gain.setValueAtTime(0.001, startTime);
-        gain.gain.exponentialRampToValueAtTime(peak, startTime + attack);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + Math.max(attack + 0.02, duration - release));
+        gain.gain.exponentialRampToValueAtTime(MASTER_PEAK, startTime + attack);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          startTime + Math.max(attack + 0.02, duration - release)
+        );
 
         osc.connect(gain).connect(context.destination);
         osc.start(startTime);
         osc.stop(startTime + duration);
       }
 
-      function animatePulse(i, ms) {
-        pulses[i].classList.add("active");
-        setTimeout(() => pulses[i].classList.remove("active"), ms);
-      }
+      function showSpeaker() { speakerEl.classList.add("show"); }
+      function hideSpeaker() { speakerEl.classList.remove("show"); }
 
-      // Logic
       function generateAnswer() {
         let arr;
         do {
@@ -250,50 +351,101 @@
         return arr;
       }
 
-      function clearFeedback() {
-        pulses.forEach((p) => p.classList.remove("correct", "wrong"));
+      function pickPrettyMelody() {
+        const presets = [
+          [261.63, 329.63, 392.00, 440.00], // C E G A
+          [261.63, 293.66, 392.00, 440.00], // C D G A
+          [293.66, 329.63, 392.00, 493.88], // D E G B
+          [261.63, 392.00, 440.00, 523.25], // C G A C5
+          [220.00, 261.63, 329.63, 392.00], // A3 C E G
+          [392.00, 440.00, 493.88, 523.25], // G A B C5
+          [261.63, 392.00, 329.63, 440.00], // C G E A (orden distinto)
+        ];
+        return presets[Math.floor(Math.random() * presets.length)];
+      }
+
+      function clearAllResultBorders() {
+        groups.forEach((group) => {
+          const buttons = group.querySelectorAll("button.note");
+          buttons.forEach((btn) => btn.classList.remove("result-ok", "result-bad"));
+        });
       }
 
       function playAnswerMelody() {
-        clearFeedback();
+        clearAllResultBorders();
 
         const context = getAudioContext();
         const start = context.currentTime + 0.03;
 
-        let t = start;
+        showSpeaker();
 
+        let t = start;
         for (let i = 0; i < NOTE_COUNT; i++) {
           const kind = answer[i];
           const dur = kind === "white" ? DUR_WHITE : DUR_BLACK;
-
-          // Frecuencia fija por posición (melodía bonita)
-          const freq = baseFreqs[i];
+          const freq = currentFreqs[i];
 
           playTone(freq, t, dur);
-
-          setTimeout(() => animatePulse(i, dur * 1000), (t - start) * 1000);
-
           t += dur + GAP;
         }
+
+        const totalTime = (t - start);
+        setTimeout(hideSpeaker, totalTime * 1000 + 60);
       }
 
       function checkAnswers() {
-        clearFeedback();
-        for (let i = 0; i < NOTE_COUNT; i++) {
-          const ok = selections[i] === answer[i];
-          pulses[i].classList.add(ok ? "correct" : "wrong");
+        clearAllResultBorders();
+
+        let correctNow = 0;
+
+        groups.forEach((group, i) => {
+          const chosen = selections[i];
+          const ok = chosen === answer[i];
+          if (ok) correctNow++;
+
+          const chosenBtn = group.querySelector(chosen === "white" ? ".note.white" : ".note.black");
+          chosenBtn.classList.remove("selected");
+          chosenBtn.classList.add(ok ? "result-ok" : "result-bad");
+        });
+
+        // Modelo C: solo puntúa el primer CHECK de esta melodía
+        if (!scoredThisMelody) {
+          totalCorrect += correctNow;
+          totalAttempts += NOTE_COUNT;
+          scoredThisMelody = true;
+          updateScore();
         }
+
+        // Para pasar: debe ser 4/4 (aunque ya no puntúe)
+        newBtn.disabled = (correctNow !== NOTE_COUNT);
       }
 
-      function newExercise() {
+      function newMelody() {
+        if (newBtn.disabled) return;
+
+        melodyIndex++;
+        titleEl.textContent = `Melodía ${melodyIndex}`;
+
+        currentFreqs = pickPrettyMelody();
         answer = generateAnswer();
-        clearFeedback();
+        scoredThisMelody = false;
+
+        // Reset visual (volver a selección amarilla)
+        groups.forEach((group, i) => {
+          const buttons = group.querySelectorAll("button.note");
+          buttons.forEach((btn) => btn.classList.remove("result-ok", "result-bad", "selected"));
+
+          const sel = selections[i]; // lo que tenga el niño marcado
+          const defaultBtn = group.querySelector(sel === "white" ? ".note.white" : ".note.black");
+          defaultBtn.classList.add("selected");
+        });
+
+        newBtn.disabled = true;
       }
 
-      // Events
       listenBtn.addEventListener("click", playAnswerMelody);
       checkBtn.addEventListener("click", checkAnswers);
-      newBtn.addEventListener("click", newExercise);
+      newBtn.addEventListener("click", newMelody);
     </script>
   </body>
 </html>
