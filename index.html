@@ -3,13 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Notas blancas y negras</title>
+    <title>Notas blancas y negras — Ejercicio</title>
     <style>
       :root {
         --bg: #f5f5f5;
         --white: #ffffff;
         --black: #1f1f1f;
         --accent: #4aa3ff;
+        --ok: #22c55e;
+        --bad: #ef4444;
+        --muted: #6b7280;
         --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       }
 
@@ -23,10 +26,33 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between;
-        padding: 32px 16px 48px;
+        justify-content: center;
+        gap: 16px;
+        padding: 28px 16px 36px;
         background: var(--bg);
-        font-family: "Arial", sans-serif;
+        font-family: Arial, sans-serif;
+      }
+
+      .card {
+        width: min(920px, 100%);
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 22px;
+        padding: 18px 18px 16px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(6px);
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: 20px;
+        letter-spacing: 0.2px;
+      }
+
+      .subtitle {
+        margin: 0 0 14px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.35;
       }
 
       .choices {
@@ -34,6 +60,7 @@
         grid-template-columns: repeat(4, minmax(70px, 90px));
         gap: 16px 20px;
         margin-top: 8px;
+        justify-content: center;
       }
 
       .note-group {
@@ -41,9 +68,16 @@
         gap: 8px;
         align-items: center;
         justify-items: center;
+        padding: 8px 6px;
+        border-radius: 16px;
       }
 
-      button {
+      .note-label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      button.note {
         border: none;
         cursor: pointer;
         width: 80px;
@@ -53,7 +87,7 @@
         transition: transform 0.15s ease, box-shadow 0.15s ease;
       }
 
-      button:focus-visible {
+      button.note:focus-visible {
         outline: 3px solid var(--accent);
         outline-offset: 4px;
       }
@@ -74,120 +108,310 @@
       .animation {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
+        gap: 18px;
         align-items: center;
-        margin: 24px 0;
+        margin: 16px 0 4px;
       }
 
       .pulse {
-        width: 56px;
-        height: 56px;
+        width: 52px;
+        height: 52px;
         border-radius: 50%;
         background: #d9e6f7;
         box-shadow: inset 0 0 0 6px #c6d9f4;
         transition: transform 0.2s ease, background 0.2s ease;
+        justify-self: center;
       }
 
       .pulse.active {
-        transform: scale(1.2);
+        transform: scale(1.18);
         background: var(--accent);
       }
 
-      .play {
-        margin-top: 16px;
-        width: 140px;
-        height: 64px;
-        border-radius: 26px;
-        background: var(--accent);
-        color: #ffffff;
-        font-size: 18px;
-        font-weight: 600;
-        letter-spacing: 1px;
+      .pulse.correct {
+        background: var(--ok);
+        box-shadow: inset 0 0 0 6px rgba(34, 197, 94, 0.25);
       }
 
-      .play:active {
+      .pulse.wrong {
+        background: var(--bad);
+        box-shadow: inset 0 0 0 6px rgba(239, 68, 68, 0.25);
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .btn {
+        border: none;
+        cursor: pointer;
+        height: 56px;
+        padding: 0 18px;
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        transition: transform 0.1s ease;
+      }
+
+      .btn:active {
         transform: scale(0.98);
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .btn-check {
+        background: #111827;
+        color: #fff;
+      }
+
+      .btn-ghost {
+        background: #ffffff;
+        color: #111827;
+      }
+
+      .status {
+        text-align: center;
+        min-height: 24px;
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 8px;
+      }
+
+      .status strong {
+        color: #111827;
+      }
+
+      .status.ok {
+        color: #166534;
+      }
+
+      .status.bad {
+        color: #7f1d1d;
+      }
+
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 6px;
       }
     </style>
   </head>
   <body>
-    <div class="choices" aria-label="Elegir notas blancas o negras">
-      <div class="note-group" data-index="0">
-        <button class="white selected" aria-label="Nota 1 blanca"></button>
-        <button class="black" aria-label="Nota 1 negra"></button>
-      </div>
-      <div class="note-group" data-index="1">
-        <button class="white selected" aria-label="Nota 2 blanca"></button>
-        <button class="black" aria-label="Nota 2 negra"></button>
-      </div>
-      <div class="note-group" data-index="2">
-        <button class="white selected" aria-label="Nota 3 blanca"></button>
-        <button class="black" aria-label="Nota 3 negra"></button>
-      </div>
-      <div class="note-group" data-index="3">
-        <button class="white selected" aria-label="Nota 4 blanca"></button>
-        <button class="black" aria-label="Nota 4 negra"></button>
-      </div>
-    </div>
+    <div class="card" role="group" aria-label="Ejercicio de notas blancas y negras">
+      <h1>Notas blancas y negras</h1>
+      <p class="subtitle">
+        Pulsa <strong>Escuchar</strong> para oír una melodía de 4 notas. Luego marca en cada columna si crees que fue
+        <strong>blanca</strong> o <strong>negra</strong>. Finalmente pulsa <strong>CHECK</strong>.
+      </p>
 
-    <div class="animation" aria-hidden="true">
-      <div class="pulse" data-pulse="0"></div>
-      <div class="pulse" data-pulse="1"></div>
-      <div class="pulse" data-pulse="2"></div>
-      <div class="pulse" data-pulse="3"></div>
-    </div>
+      <div class="choices" aria-label="Elegir blanco o negro para cada nota">
+        <div class="note-group" data-index="0">
+          <div class="note-label">Nota 1</div>
+          <button class="note white selected" aria-label="Nota 1 blanca"></button>
+          <button class="note black" aria-label="Nota 1 negra"></button>
+        </div>
+        <div class="note-group" data-index="1">
+          <div class="note-label">Nota 2</div>
+          <button class="note white selected" aria-label="Nota 2 blanca"></button>
+          <button class="note black" aria-label="Nota 2 negra"></button>
+        </div>
+        <div class="note-group" data-index="2">
+          <div class="note-label">Nota 3</div>
+          <button class="note white selected" aria-label="Nota 3 blanca"></button>
+          <button class="note black" aria-label="Nota 3 negra"></button>
+        </div>
+        <div class="note-group" data-index="3">
+          <div class="note-label">Nota 4</div>
+          <button class="note white selected" aria-label="Nota 4 blanca"></button>
+          <button class="note black" aria-label="Nota 4 negra"></button>
+        </div>
+      </div>
 
-    <button class="play" id="play" aria-label="Reproducir notas">▶</button>
+      <div class="animation" aria-hidden="true">
+        <div class="pulse" data-pulse="0"></div>
+        <div class="pulse" data-pulse="1"></div>
+        <div class="pulse" data-pulse="2"></div>
+        <div class="pulse" data-pulse="3"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="listen" aria-label="Escuchar melodía">▶ ESCUCHAR</button>
+        <button class="btn btn-check" id="check" aria-label="Comprobar respuestas">CHECK</button>
+        <button class="btn btn-ghost" id="new" aria-label="Nueva melodía">NUEVA</button>
+      </div>
+
+      <div id="status" class="status" aria-live="polite"></div>
+      <div class="small">Tip: puedes escuchar varias veces antes de comprobar.</div>
+    </div>
 
     <script>
-      const selections = ["white", "white", "white", "white"];
+      // ====== CONFIG ======
+      // Cada posición tiene dos posibilidades: "white" y "black" con dos frecuencias.
+      // Puedes cambiar estas notas si quieres otra sonoridad.
       const noteSets = [
-        { white: 261.63, black: 277.18 },
-        { white: 293.66, black: 311.13 },
-        { white: 329.63, black: 349.23 },
-        { white: 392.0, black: 415.3 },
+        { white: 261.63, black: 277.18 }, // Do / Do#
+        { white: 293.66, black: 311.13 }, // Re / Re#
+        { white: 329.63, black: 349.23 }, // Mi / Fa (aquí "black" es Fa, por simplicidad)
+        { white: 392.0, black: 415.3 },   // Sol / Sol#
       ];
+
+      const NOTE_COUNT = 4;
+      const NOTE_DURATION = 0.45; // segundos por nota
+      const GAP = 0.02; // pequeño hueco entre notas
+
+      // ====== STATE ======
+      // Selección del alumno (arranca todo en blanco seleccionado).
+      const selections = Array(NOTE_COUNT).fill("white");
+
+      // Respuesta correcta (la melodía generada): array de "white"/"black"
+      let answer = generateAnswer();
+
+      // ====== ELEMENTS ======
       const groups = document.querySelectorAll(".note-group");
       const pulses = document.querySelectorAll(".pulse");
-      const playButton = document.getElementById("play");
+      const listenBtn = document.getElementById("listen");
+      const checkBtn = document.getElementById("check");
+      const newBtn = document.getElementById("new");
+      const statusEl = document.getElementById("status");
 
+      // ====== UI: selección blanco/negro ======
       groups.forEach((group) => {
         const index = Number(group.dataset.index);
-        const buttons = group.querySelectorAll("button");
+        const buttons = group.querySelectorAll("button.note");
+
         buttons.forEach((button) => {
           button.addEventListener("click", () => {
             buttons.forEach((btn) => btn.classList.remove("selected"));
             button.classList.add("selected");
             selections[index] = button.classList.contains("white") ? "white" : "black";
+            clearFeedback();
+            statusEl.textContent = "";
+            statusEl.className = "status";
           });
         });
       });
 
-      function playSequence() {
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        const now = context.currentTime;
-        const duration = 0.45;
+      // ====== AUDIO helpers ======
+      let sharedContext = null;
 
-        selections.forEach((choice, i) => {
-          const oscillator = context.createOscillator();
-          const gain = context.createGain();
-          oscillator.type = "sine";
-          oscillator.frequency.value = noteSets[i][choice];
-          gain.gain.setValueAtTime(0.001, now + i * duration);
-          gain.gain.exponentialRampToValueAtTime(0.2, now + i * duration + 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + i * duration + duration - 0.05);
-          oscillator.connect(gain).connect(context.destination);
-          oscillator.start(now + i * duration);
-          oscillator.stop(now + i * duration + duration);
-
-          setTimeout(() => {
-            pulses[i].classList.add("active");
-            setTimeout(() => pulses[i].classList.remove("active"), duration * 1000);
-          }, i * duration * 1000);
-        });
+      function getAudioContext() {
+        if (!sharedContext) {
+          sharedContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        // En algunos navegadores necesita "resume" tras gesto del usuario
+        if (sharedContext.state === "suspended") sharedContext.resume();
+        return sharedContext;
       }
 
-      playButton.addEventListener("click", playSequence);
+      function playTone(ctx, freq, startTime, duration) {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = freq;
+
+        // Envelope suave
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration - 0.05);
+
+        oscillator.connect(gain).connect(ctx.destination);
+        oscillator.start(startTime);
+        oscillator.stop(startTime + duration);
+      }
+
+      function animatePulse(i, ms) {
+        pulses[i].classList.add("active");
+        setTimeout(() => pulses[i].classList.remove("active"), ms);
+      }
+
+      // ====== EXERCISE LOGIC ======
+      function generateAnswer() {
+        // Melodía aleatoria con blancas y negras
+        // Evita que salgan 4 iguales para que haya “reto” (opcional)
+        let arr;
+        do {
+          arr = Array.from({ length: NOTE_COUNT }, () => (Math.random() < 0.5 ? "white" : "black"));
+        } while (arr.every((x) => x === "white") || arr.every((x) => x === "black"));
+        return arr;
+      }
+
+      function playAnswerMelody() {
+        clearFeedback();
+        statusEl.textContent = "Escuchando...";
+        statusEl.className = "status";
+
+        const ctx = getAudioContext();
+        const now = ctx.currentTime + 0.02;
+
+        for (let i = 0; i < NOTE_COUNT; i++) {
+          const choice = answer[i];
+          const freq = noteSets[i][choice];
+          const start = now + i * (NOTE_DURATION + GAP);
+
+          playTone(ctx, freq, start, NOTE_DURATION);
+
+          setTimeout(() => animatePulse(i, NOTE_DURATION * 1000), i * (NOTE_DURATION + GAP) * 1000);
+        }
+
+        setTimeout(() => {
+          statusEl.textContent = "Marca tu respuesta y pulsa CHECK.";
+          statusEl.className = "status";
+        }, NOTE_COUNT * (NOTE_DURATION + GAP) * 1000 + 60);
+      }
+
+      function clearFeedback() {
+        pulses.forEach((p) => p.classList.remove("correct", "wrong"));
+      }
+
+      function checkAnswers() {
+        clearFeedback();
+
+        let correct = 0;
+        for (let i = 0; i < NOTE_COUNT; i++) {
+          const ok = selections[i] === answer[i];
+          if (ok) {
+            correct++;
+            pulses[i].classList.add("correct");
+          } else {
+            pulses[i].classList.add("wrong");
+          }
+        }
+
+        if (correct === NOTE_COUNT) {
+          statusEl.innerHTML = `✅ <strong>Perfecto</strong>: 4/4 correctas.`;
+          statusEl.className = "status ok";
+        } else {
+          statusEl.innerHTML = `❌ Has acertado <strong>${correct}/${NOTE_COUNT}</strong>. Repite y ajusta.`;
+          statusEl.className = "status bad";
+        }
+      }
+
+      function newExercise() {
+        answer = generateAnswer();
+        clearFeedback();
+        statusEl.textContent = "Nueva melodía lista. Pulsa ESCUCHAR.";
+        statusEl.className = "status";
+      }
+
+      // ====== EVENTS ======
+      listenBtn.addEventListener("click", playAnswerMelody);
+      checkBtn.addEventListener("click", checkAnswers);
+      newBtn.addEventListener("click", newExercise);
+
+      // Mensaje inicial
+      statusEl.textContent = "Pulsa ESCUCHAR para empezar.";
     </script>
   </body>
 </html>
