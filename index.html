@@ -18,9 +18,8 @@
       body {
         margin: 0;
         min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: grid;
+        place-items: center;
         padding: 22px 16px;
         background: var(--bg);
         font-family: Arial, sans-serif;
@@ -41,7 +40,6 @@
         margin-top: 6px;
         justify-content: center;
       }
-
       .note-group {
         display: grid;
         gap: 10px;
@@ -64,10 +62,8 @@
         outline: 3px solid var(--accent);
         outline-offset: 4px;
       }
-
       .white { background: var(--white); }
       .black { background: var(--black); }
-
       .selected {
         transform: translateY(-3px) scale(1.03);
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
@@ -106,7 +102,6 @@
         align-items: center;
         margin-top: 8px;
       }
-
       .btn {
         border: none;
         cursor: pointer;
@@ -119,9 +114,9 @@
         transition: transform 0.1s ease;
         display: grid;
         place-items: center;
+        user-select: none;
       }
       .btn:active { transform: scale(0.98); }
-
       .btn-primary { background: var(--accent); color: #fff; }
       .btn-check { background: #111827; color: #fff; }
       .btn-ghost { background: #fff; color: #111827; }
@@ -164,35 +159,37 @@
     </div>
 
     <script>
-      // ====== CONFIG ======
-      const noteSets = [
-        { white: 261.63, black: 277.18 }, // Do / Do#
-        { white: 293.66, black: 311.13 }, // Re / Re#
-        { white: 329.63, black: 349.23 }, // Mi / Fa
-        { white: 392.0, black: 415.3 },   // Sol / Sol#
-      ];
+      // =============================
+      // IDEA: SOLO cambia la DURACIÓN.
+      // Mismo timbre (sine), mismo volumen, misma envolvente.
+      // Blanca = larga, Negra = corta.
+      // =============================
 
       const NOTE_COUNT = 4;
 
-      // Blancas: más largas y suaves
-      const DUR_WHITE = 0.48;
-      // Negras: un pelín más cortas (más “picadas”)
-      const DUR_BLACK = 0.34;
+      // Melodía bonita (pentatónica / muy “agradable”):
+      // Do - Mi - Sol - La (C4, E4, G4, A4)
+      const baseFreqs = [261.63, 329.63, 392.0, 440.0];
 
-      const GAP = 0.03;
+      // Duraciones (ajústalo si quieres más exagerado)
+      const DUR_BLACK = 0.28; // corta
+      const DUR_WHITE = 0.62; // larga (más del doble, se nota clarísimo)
+      const GAP = 0.05;       // silencio entre notas para que se perciba el largo/corto
 
-      // ====== STATE ======
+      // Selección del alumno
       const selections = Array(NOTE_COUNT).fill("white");
+
+      // Respuesta correcta (solo white/black, porque lo que cambia es la duración)
       let answer = generateAnswer();
 
-      // ====== ELEMENTS ======
+      // Elements
       const groups = document.querySelectorAll(".note-group");
       const pulses = document.querySelectorAll(".pulse");
       const listenBtn = document.getElementById("listen");
       const checkBtn = document.getElementById("check");
       const newBtn = document.getElementById("new");
 
-      // ====== UI ======
+      // UI selection
       groups.forEach((group) => {
         const index = Number(group.dataset.index);
         const buttons = group.querySelectorAll("button.note");
@@ -207,62 +204,36 @@
         });
       });
 
-      // ====== AUDIO ======
+      // Audio
       let ctx = null;
-
       function getAudioContext() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
         if (ctx.state === "suspended") ctx.resume();
         return ctx;
       }
 
-      function playNote(kind, freq, startTime) {
+      function playTone(freq, startTime, duration) {
         const context = getAudioContext();
 
         const osc = context.createOscillator();
         const gain = context.createGain();
 
-        // DIFERENCIA CLARA:
-        // - blanca: sine (suave)
-        // - negra: square (más “brillante” y evidente)
-        osc.type = kind === "white" ? "sine" : "square";
-
-        // Duración distinta
-        const dur = kind === "white" ? DUR_WHITE : DUR_BLACK;
-
-        // Un pelín de vibrato en negras (muy leve) para que el oído lo pille
-        // (sin pasarse)
-        const vibrato = kind === "black" ? 6.0 : 0.0; // Hz
-        const depth = kind === "black" ? 6.0 : 0.0;   // cents aprox (simple)
-
-        // Frecuencia base
+        // MISMO SONIDO SIEMPRE
+        osc.type = "sine";
         osc.frequency.setValueAtTime(freq, startTime);
 
-        // Vibrato simple: oscilador auxiliar modulando frecuencia
-        let lfo, lfoGain;
-        if (kind === "black") {
-          lfo = context.createOscillator();
-          lfoGain = context.createGain();
-          lfo.type = "sine";
-          lfo.frequency.setValueAtTime(vibrato, startTime);
-          lfoGain.gain.setValueAtTime(depth, startTime);
-          lfo.connect(lfoGain).connect(osc.frequency);
-          lfo.start(startTime);
-          lfo.stop(startTime + dur);
-        }
-
-        // Envelope (ataque más rápido en negras)
-        const attack = kind === "white" ? 0.06 : 0.02;
-        const peak = kind === "white" ? 0.22 : 0.18;
+        // Envolvente suave (igual para blancas y negras)
+        const attack = 0.02;
+        const release = 0.05;
+        const peak = 0.22;
 
         gain.gain.setValueAtTime(0.001, startTime);
         gain.gain.exponentialRampToValueAtTime(peak, startTime + attack);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur - 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + Math.max(attack + 0.02, duration - release));
 
         osc.connect(gain).connect(context.destination);
-
         osc.start(startTime);
-        osc.stop(startTime + dur);
+        osc.stop(startTime + duration);
       }
 
       function animatePulse(i, ms) {
@@ -270,7 +241,7 @@
         setTimeout(() => pulses[i].classList.remove("active"), ms);
       }
 
-      // ====== LOGIC ======
+      // Logic
       function generateAnswer() {
         let arr;
         do {
@@ -285,6 +256,7 @@
 
       function playAnswerMelody() {
         clearFeedback();
+
         const context = getAudioContext();
         const start = context.currentTime + 0.03;
 
@@ -292,10 +264,13 @@
 
         for (let i = 0; i < NOTE_COUNT; i++) {
           const kind = answer[i];
-          const freq = noteSets[i][kind];
-          playNote(kind, freq, t);
-
           const dur = kind === "white" ? DUR_WHITE : DUR_BLACK;
+
+          // Frecuencia fija por posición (melodía bonita)
+          const freq = baseFreqs[i];
+
+          playTone(freq, t, dur);
+
           setTimeout(() => animatePulse(i, dur * 1000), (t - start) * 1000);
 
           t += dur + GAP;
@@ -315,7 +290,7 @@
         clearFeedback();
       }
 
-      // ====== EVENTS ======
+      // Events
       listenBtn.addEventListener("click", playAnswerMelody);
       checkBtn.addEventListener("click", checkAnswers);
       newBtn.addEventListener("click", newExercise);
