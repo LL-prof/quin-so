@@ -99,7 +99,8 @@
         height: 62px;
         border-radius: 18px;
         box-shadow: var(--shadow);
-        transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
+        transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease,
+          opacity 0.12s ease;
         position: relative;
       }
 
@@ -261,9 +262,9 @@
       <div class="speaker" id="speaker" aria-hidden="true">
         <div class="bubble">
           <svg viewBox="0 0 64 64" fill="none">
-            <path d="M28 22L18 30H10v4h8l10 8V22z" fill="#111827"/>
-            <path d="M40 24c3 3 3 13 0 16" stroke="#4aa3ff" stroke-width="4" stroke-linecap="round"/>
-            <path d="M48 18c6 6 6 22 0 28" stroke="#4aa3ff" stroke-width="4" stroke-linecap="round" opacity=".75"/>
+            <path d="M28 22L18 30H10v4h8l10 8V22z" fill="#111827" />
+            <path d="M40 24c3 3 3 13 0 16" stroke="#4aa3ff" stroke-width="4" stroke-linecap="round" />
+            <path d="M48 18c6 6 6 22 0 28" stroke="#4aa3ff" stroke-width="4" stroke-linecap="round" opacity=".75" />
           </svg>
         </div>
       </div>
@@ -271,88 +272,82 @@
 
     <script>
       const NOTE_COUNT = 4;
-
-      // ✅ Gap entre notas (silencio). Con MP3 la duración ya la marca el audio.
       const GAP = 0.08;
 
       // ==========================
-      // ✅ CAMBIA AQUÍ: NOMBRES DE ARCHIVOS MP3
+      // ✅ MP3 en la misma carpeta (AUDIO_FOLDER vacío)
       // ==========================
-      // Opción A (recomendada): mismos nombres en carpeta "audio/"
-      // Si los tienes en la misma carpeta que el html, quita "audio/".
-      const AUDIO_FOLDER = ""; // <-- CAMBIA a "" si están junto al HTML
+      const AUDIO_FOLDER = ""; // <-- déjalo así si están junto al HTML
 
-      // Mapa de samples:
-      // - "white" = nota larga (blanca)
-      // - "black" = nota corta (negra)
-      //
-      // 🔧 CAMBIA los nombres exactos a los tuyos.
+      // 🔧 CAMBIA AQUÍ si algún nombre no coincide EXACTO
       const SAMPLES = {
         do:  { white: AUDIO_FOLDER + "do_blanca.mp3",  black: AUDIO_FOLDER + "do_negra.mp3"  },
         re:  { white: AUDIO_FOLDER + "re_blanca.mp3",  black: AUDIO_FOLDER + "re_negra.mp3"  },
         mi:  { white: AUDIO_FOLDER + "mi_blanca.mp3",  black: AUDIO_FOLDER + "mi_negra.mp3"  },
         fa:  { white: AUDIO_FOLDER + "fa_blanca.mp3",  black: AUDIO_FOLDER + "fa_negra.mp3"  },
         sol: { white: AUDIO_FOLDER + "sol_blanca.mp3", black: AUDIO_FOLDER + "sol_negra.mp3" },
-        // Si tienes también LA y SI, descomenta y pon los nombres:
         la:  { white: AUDIO_FOLDER + "la_blanca.mp3",  black: AUDIO_FOLDER + "la_negra.mp3"  },
         si:  { white: AUDIO_FOLDER + "si_blanca.mp3",  black: AUDIO_FOLDER + "si_negra.mp3"  },
       };
 
-      // Melodías (ahora son nombres de notas, no frecuencias)
-      // Puedes añadir más combinaciones.
       function pickPrettyMelodyNames() {
         const presets = [
-  ["do", "re", "mi", "sol"],
-  ["do", "mi", "sol", "fa"],
-  ["re", "mi", "fa", "sol"],
-  ["mi", "re", "do", "sol"],
-  ["sol", "fa", "mi", "re"],
+          // Tus 5 (mantengo)
+          ["do", "re", "mi", "sol"],
+          ["do", "mi", "sol", "fa"],
+          ["re", "mi", "fa", "sol"],
+          ["mi", "re", "do", "sol"],
+          ["sol", "fa", "mi", "re"],
 
-  // +20 nuevos (solo usando do re mi fa sol)
-  ["do", "re", "fa", "sol"],
-  ["do", "mi", "fa", "sol"],
-  ["do", "fa", "mi", "re"],
-  ["do", "sol", "fa", "mi"],
-  ["do", "mi", "re", "do"],
+          // +25 nuevas (usando do re mi fa sol la si)
+          ["do", "re", "fa", "sol"],
+          ["do", "mi", "fa", "sol"],
+          ["do", "fa", "mi", "re"],
+          ["do", "sol", "fa", "mi"],
+          ["do", "mi", "re", "do"],
 
-  ["re", "mi", "sol", "fa"],
-  ["re", "fa", "sol", "mi"],
-  ["re", "sol", "fa", "mi"],
-  ["re", "do", "mi", "fa"],
-  ["re", "mi", "re", "do"],
+          ["re", "fa", "sol", "la"],
+          ["re", "sol", "la", "si"],
+          ["re", "mi", "sol", "si"],
+          ["re", "do", "mi", "fa"],
+          ["re", "la", "sol", "fa"],
 
-  ["mi", "fa", "sol", "fa"],
-  ["mi", "sol", "fa", "re"],
-  ["mi", "do", "re", "mi"],
-  ["mi", "re", "fa", "sol"],
-  ["mi", "fa", "mi", "re"],
+          ["mi", "fa", "sol", "la"],
+          ["mi", "sol", "la", "si"],
+          ["mi", "la", "sol", "mi"],
+          ["mi", "re", "fa", "la"],
+          ["mi", "si", "la", "sol"],
 
-  ["fa", "sol", "mi", "re"],
-  ["fa", "mi", "re", "do"],
-  ["fa", "re", "mi", "sol"],
-  ["fa", "sol", "fa", "mi"],
-  ["fa", "do", "re", "fa"],
+          ["fa", "sol", "la", "sol"],
+          ["fa", "mi", "re", "do"],
+          ["fa", "la", "sol", "mi"],
+          ["fa", "re", "mi", "sol"],
+          ["fa", "sol", "si", "la"],
 
-  ["sol", "mi", "re", "do"],
-  ["sol", "fa", "sol", "mi"],
-  ["sol", "re", "mi", "fa"],
-  ["sol", "do", "mi", "re"],
-  ["sol", "mi", "sol", "fa"],
-];
+          ["sol", "la", "si", "do"],
+          ["sol", "fa", "mi", "re"],
+          ["sol", "mi", "re", "do"],
+          ["sol", "si", "la", "sol"],
+          ["sol", "do", "mi", "la"],
+
+          ["la", "si", "do", "re"],
+          ["la", "sol", "fa", "mi"],
+          ["la", "mi", "fa", "sol"],
+          ["si", "la", "sol", "fa"],
+          ["si", "sol", "la", "do"],
+        ];
         return presets[Math.floor(Math.random() * presets.length)];
       }
 
-      // ==========================
-      // Marcador / reglas (igual que tu versión)
-      // ==========================
+      // Marcador / reglas
       let totalCorrect = 0;
       let totalAttempts = 0;
       let scoredThisMelody = false;
       let unlocked = false;
 
       let melodyIndex = 1;
-      let currentMelody = pickPrettyMelodyNames(); // ["do","re","mi","sol"] etc
-      let answer = generateAnswer(); // ["white"/"black"] x4
+      let currentMelody = pickPrettyMelodyNames();
+      let answer = generateAnswer();
       const selections = Array(NOTE_COUNT).fill(null);
 
       const groups = document.querySelectorAll(".note-group");
@@ -369,10 +364,25 @@
       updateScore();
 
       // ==========================
-      // ✅ Motor de audio usando MP3 con AudioContext (preciso y sin solapes raros)
+      // ✅ Evitar solapes: una reproducción por click
       // ==========================
+      let isPlaying = false;
+      let activeSources = [];
+
+      function showSpeaker() { speakerEl.classList.add("show"); }
+      function hideSpeaker() { speakerEl.classList.remove("show"); }
+
+      function stopPlayback() {
+        try { hideSpeaker(); } catch(e) {}
+        activeSources.forEach(src => { try { src.stop(0); } catch(e) {} });
+        activeSources = [];
+        isPlaying = false;
+        if (!unlocked) listenBtn.disabled = false;
+      }
+
+      // AudioContext + cache
       let ctx = null;
-      const bufferCache = new Map(); // url -> AudioBuffer
+      const bufferCache = new Map();
 
       function getAudioContext() {
         if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -391,29 +401,27 @@
         return buf;
       }
 
-      // Reproduce un AudioBuffer en un momento concreto (startTime)
       function playBufferAt(buffer, startTime) {
         const ac = getAudioContext();
         const src = ac.createBufferSource();
         src.buffer = buffer;
 
-        // Volumen general (si quieres bajarlo/subirlo globalmente):
-        // 🔧 CAMBIA AQUÍ si quieres (0.0 - 1.0)
+        // 🔧 Volumen global (sube a 1.2 si tu mp3 va flojo, o baja a 0.8)
         const gain = ac.createGain();
         gain.gain.setValueAtTime(1.0, startTime);
 
         src.connect(gain).connect(ac.destination);
-        src.start(startTime);
 
+        activeSources.push(src);
+        src.onended = () => {
+          activeSources = activeSources.filter(s => s !== src);
+        };
+
+        src.start(startTime);
         return buffer.duration;
       }
 
-      function showSpeaker() { speakerEl.classList.add("show"); }
-      function hideSpeaker() { speakerEl.classList.remove("show"); }
-
-      // ==========================
-      // UI selection (igual que tu versión)
-      // ==========================
+      // UI selection
       groups.forEach((group) => {
         const index = Number(group.dataset.index);
         const buttons = group.querySelectorAll("button.note");
@@ -445,22 +453,25 @@
         });
       }
 
-      // ==========================
-      // ✅ PLAY: ahora reproduce MP3 según nota + white/black
-      // ==========================
       async function playAnswerMelody() {
         if (unlocked) return;
+        if (isPlaying) return;
+
+        stopPlayback();
+        isPlaying = true;
+        listenBtn.disabled = true;
+
         clearAllResultBorders();
 
         const ac = getAudioContext();
         const start = ac.currentTime + 0.05;
         showSpeaker();
 
-        // Precarga los 4 buffers antes de reproducir (para que no haya cortes)
+        // Precarga
         const urls = [];
         for (let i = 0; i < NOTE_COUNT; i++) {
           const noteName = currentMelody[i];
-          const kind = answer[i]; // "white" o "black"
+          const kind = answer[i];
           const url = SAMPLES[noteName]?.[kind];
           if (!url) throw new Error(`Falta sample para ${noteName} (${kind}). Revisa SAMPLES.`);
           urls.push(url);
@@ -469,19 +480,21 @@
         const buffers = [];
         for (const url of urls) buffers.push(await loadBuffer(url));
 
-        // Programar en el tiempo (perfecto)
+        // Programación exacta
         let t = start;
         for (let i = 0; i < NOTE_COUNT; i++) {
           const dur = playBufferAt(buffers[i], t);
           t += dur + GAP;
         }
 
-        setTimeout(hideSpeaker, (t - start) * 1000 + 80);
+        const totalMs = (t - start) * 1000 + 80;
+        setTimeout(() => {
+          hideSpeaker();
+          isPlaying = false;
+          if (!unlocked) listenBtn.disabled = false;
+        }, totalMs);
       }
 
-      // ==========================
-      // CHECK (igual que tu versión)
-      // ==========================
       function checkAnswers() {
         if (unlocked) return;
         clearAllResultBorders();
@@ -511,19 +524,22 @@
 
         if (correctNow === NOTE_COUNT) {
           unlocked = true;
+
+          // ✅ congelar play/check y cortar audio si estuviera sonando
+          stopPlayback();
           listenBtn.disabled = true;
           checkBtn.disabled = true;
+
           newBtn.disabled = false;
         } else {
           newBtn.disabled = true;
         }
       }
 
-      // ==========================
-      // NEW MELODY (igual que tu versión)
-      // ==========================
       function newMelody() {
         if (newBtn.disabled) return;
+
+        stopPlayback();
 
         melodyIndex++;
         titleEl.textContent = `Melodía ${melodyIndex}`;
@@ -547,11 +563,9 @@
       }
 
       listenBtn.addEventListener("click", () => {
-        // Importante: envolver en async sin romper tu estructura
         playAnswerMelody().catch(err => {
           console.error(err);
-          // Si falla un nombre de archivo, lo verás en consola.
-          // (F12 -> Console)
+          // Si falla, mira F12 -> Console para ver qué mp3 no encuentra
         });
       });
       checkBtn.addEventListener("click", checkAnswers);
